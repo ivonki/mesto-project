@@ -12,10 +12,10 @@
   },
   "license": "ISC",
   "author": "Alina Iv",
-  "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rimraf dist && webpack",
+    "dev": "webpack serve"
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",
@@ -23,14 +23,21 @@
     "autoprefixer": "^10.4.21",
     "babel-loader": "^10.0.0",
     "clean-webpack-plugin": "^4.0.0",
+    "core-js": "^3.42.0",
     "css-loader": "^7.1.2",
+    "cssnano": "^7.0.7",
     "file-loader": "^6.2.0",
+    "html-loader": "^5.1.0",
     "html-webpack-plugin": "^5.6.3",
     "mini-css-extract-plugin": "^2.9.2",
+    "postcss": "^8.5.4",
     "postcss-loader": "^8.1.1",
     "style-loader": "^4.0.0",
     "webpack": "^5.99.9",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.1"
+  },
+  "dependencies": {
+    "regenerator-runtime": "^0.14.1"
   }
 }

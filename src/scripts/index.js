@@ -1,4 +1,42 @@
-// @todo: DOM узлы
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+
+
+import addIcon from '../images/add-icon.svg';
+import avatar from '../images/avatar.jpg';
+import cardOne from '../images/card_1.jpg';
+import cardTwo from '../images/card_2.jpg';
+import cardThree from '../images/card_3.jpg';
+import close from '../images/close.svg';
+import deleteIcon from '../images/delete-icon.svg';
+import editIcon from '../images/edit-icon.svg';
+import likeActive from '../images/like-active.svg';
+import likeInactive from '../images/like-inactive.svg';
+import logo from '../images/logo.svg'
+
+import interBlack from '../vendor/fonts/Inter-Black.woff2';
+import interMedium from '../vendor/fonts/Inter-Medium.woff2';
+import interRegular from '../vendor/fonts/Inter-Regular.woff2';
+
+import '../pages/index.css';
+
+const imagesFonts = [
+  { name: 'Add Icon', link: addIcon },
+  { name: 'Avatar', link: avatar },
+  { name: 'Card One', link: cardOne },
+  { name: 'Card Two', link: cardTwo },
+  { name: 'Card Three', link: cardThree  },
+  { name: 'Close', link: close },
+  { name: 'Delete Icon', link: deleteIcon },
+  { name: 'Edit Icon', link: editIcon },
+  { name: 'Like Active', link: likeActive },
+  { name: 'Like Inactive', link: likeInactive  },
+  { name: 'Logo', link: logo },
+
+  { name: 'Inter Black woff2', link: interBlack },
+  { name: 'Inter Meduim woff2', link: interMedium },
+  { name: 'Inter Regular woff2', link: interRegular },
+]
 
 const content = document.querySelector('.content');
 const placesList = content.querySelector('.places__list');
