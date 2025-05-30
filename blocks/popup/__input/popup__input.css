@@ -8,11 +8,41 @@
   box-sizing: border-box;
   padding: 10px 0 0;
   margin-bottom: 10px;
+  outline: none;
 }
 
 .popup__input:last-of-type {
   margin-bottom: 0;
 }
+
+.popup__input:focus {
+  outline: 2px solid #007DFF; 
+  outline-offset: 2px;
+}
+
+.popup__input.touched:invalid {
+  border-bottom: 1px solid red;
+}
+
+.popup__input.touched:focus:invalid {
+  border-bottom: 1px solid red;
+}
+
+.popup__input:not(.touched):invalid {
+  border-bottom: 1px solid rgba(0, 0, 0, .2); /* Обычный цвет границы */
+}
+
+/* .popup__input:invalid {
+  border-bottom: 1px solid red;
+} */
+
+/* .popup__input.touched:invalid {
+  border-bottom: 1px solid red;
+}
+
+.popup__input:focus:invalid {
+  border-bottom: 1px solid red;
+} */
 
 @media screen and (max-width: 568px) {
   .popup__title {
