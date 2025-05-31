@@ -1,6 +1,4 @@
-import "core-js/stable";
-import "regenerator-runtime/runtime";
-
+import { initialCards } from './cards.js';
 
 import addIcon from '../images/add-icon.svg';
 import avatar from '../images/avatar.jpg';
@@ -45,7 +43,7 @@ const profilePopup = document.querySelector('.popup_type_edit');
 const cardPopup = document.querySelector('.popup_type_new-card');
 const imagePopup = document.querySelector('.popup_type_image');
 
-const profileForm = document.forms['edit-profile'] // !!
+const profileForm = document.forms['edit-profile']
 const cardForm = document.forms['new-place']
 
 const name = profileForm.elements.name
@@ -74,7 +72,7 @@ const profileStatus = content.querySelector('.profile__description');
 const profileFormElement = profilePopup.querySelector('.popup__form'); 
 const cardFormElement = cardPopup.querySelector('.popup__form');
 
-const nameInput = profileFormElement.querySelector('.popup__input_type_name'); // !!
+const nameInput = profileFormElement.querySelector('.popup__input_type_name');
 const jobInput = profileFormElement.querySelector('.popup__input_type_description');
 
 const descriptionInput = cardFormElement.querySelector('.popup__input_type_card-name');
@@ -159,7 +157,7 @@ function handleCardFormSubmit(evt) {
   const cardImage = linkInput.value;
   const cardDescription = descriptionInput.value;
 
-  cardData = 
+  const cardData = 
   { "name": cardDescription,
     "link": cardImage}
 
@@ -234,7 +232,7 @@ imageCloseButton.addEventListener('click', function () {
   closeModal(imagePopup);
 });
 
-// @todo: Функция создания карточки
+// Функция создания карточки
 
 function createCard(cardData) {
   const cardTemplate = document.querySelector('#card-template').content;
