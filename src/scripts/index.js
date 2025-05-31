@@ -78,30 +78,39 @@ const jobInput = profileFormElement.querySelector('.popup__input_type_descriptio
 const descriptionInput = cardFormElement.querySelector('.popup__input_type_card-name');
 const linkInput = cardFormElement.querySelector('.popup__input_type_url');
 
-const showInputError = (formElement, inputElement, errorMessage) => {
-  const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.add('popup__input_type_error')
-  errorElement.textContent = errorMessage
-  errorElement.classList.add('popup__input-error_active');
+const validationSettings = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__input-error_active'
 }
 
-const hideInputError = (formElement, inputElement) => {
+const showInputError = (formElement, inputElement, errorMessage, settings) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.remove('popup__input_type_error');
-  errorElement.classList.remove('popup__input-error_active');
+  inputElement.classList.add(settings.inputErrorClass)
+  errorElement.textContent = errorMessage
+  errorElement.classList.add(settings.errorClass);
+}
+
+const hideInputError = (formElement, inputElement, settings) => {
+  const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
+  inputElement.classList.remove(settings.inputErrorClass);
+  errorElement.classList.remove(settings.errorClass);
   errorElement.textContent = '';
 };
 
-const checkInputValidity = (formElement, inputElement) => {
+const checkInputValidity = (formElement, inputElement, settings) => {
   if (!inputElement.validity.valid) {
-    showInputError(formElement, inputElement, inputElement.validationMessage);
+    showInputError(formElement, inputElement, inputElement.validationMessage, settings);
   } else {
-    hideInputError(formElement, inputElement);
+    hideInputError(formElement, inputElement, settings);
   }
 };
 
-const setEventListeners = (formElement) => {
-  const inputList = Array.from(formElement.querySelectorAll('.popup__input'));
+const setEventListeners = (formElement, settings) => {
+  const inputList = Array.from(formElement.querySelectorAll(settings.inputSelector));
   inputList.forEach((inputElement) => {
     inputElement.addEventListener('input', function () {
       this.classList.add('touched');
@@ -110,17 +119,18 @@ const setEventListeners = (formElement) => {
   });
 };
 
-function enableValidation () {
-  const formList = Array.from(document.querySelectorAll('.popup__form'))
+function enableValidation (settings) {
+  const formList = Array.from(document.querySelectorAll(settings.formSelector))
+
   formList.forEach((formElement) =>  {
     formElement.addEventListener('submit', (evt) => {
       evt.preventDefault();
     });
-    setEventListeners(formElement)
+    setEventListeners(formElement, settings)
   })
 }
 
-enableValidation();
+enableValidation(validationSettings);
 
 profilePopup.classList.add('popup_is-animated');
 cardPopup.classList.add('popup_is-animated');
