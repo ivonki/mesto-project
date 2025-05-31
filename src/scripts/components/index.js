@@ -1,22 +1,25 @@
-import { initialCards } from './cards.js';
+import { hideInputError, enableValidation, validationSettings } from './validate.js'
+import { createCard, deleteCard, likeToggle } from './card.js'
+import { openModal, closeModal } from './modal.js'
+import { initialCards } from '../cards.js';
 
-import addIcon from '../images/add-icon.svg';
-import avatar from '../images/avatar.jpg';
-import cardOne from '../images/card_1.jpg';
-import cardTwo from '../images/card_2.jpg';
-import cardThree from '../images/card_3.jpg';
-import close from '../images/close.svg';
-import deleteIcon from '../images/delete-icon.svg';
-import editIcon from '../images/edit-icon.svg';
-import likeActive from '../images/like-active.svg';
-import likeInactive from '../images/like-inactive.svg';
-import logo from '../images/logo.svg'
+import addIcon from '../../images/add-icon.svg';
+import avatar from '../../images/avatar.jpg';
+import cardOne from '../../images/card_1.jpg';
+import cardTwo from '../../images/card_2.jpg';
+import cardThree from '../../images/card_3.jpg';
+import close from '../../images/close.svg';
+import deleteIcon from '../../images/delete-icon.svg';
+import editIcon from '../../images/edit-icon.svg';
+import likeActive from '../../images/like-active.svg';
+import likeInactive from '../../images/like-inactive.svg';
+import logo from '../../images/logo.svg'
 
-import interBlack from '../vendor/fonts/Inter-Black.woff2';
-import interMedium from '../vendor/fonts/Inter-Medium.woff2';
-import interRegular from '../vendor/fonts/Inter-Regular.woff2';
+import interBlack from '../../vendor/fonts/Inter-Black.woff2';
+import interMedium from '../../vendor/fonts/Inter-Medium.woff2';
+import interRegular from '../../vendor/fonts/Inter-Regular.woff2';
 
-import '../pages/index.css';
+import '../../pages/index.css';
 
 const imagesFonts = [
   { name: 'Add Icon', link: addIcon },
@@ -78,58 +81,6 @@ const jobInput = profileFormElement.querySelector('.popup__input_type_descriptio
 const descriptionInput = cardFormElement.querySelector('.popup__input_type_card-name');
 const linkInput = cardFormElement.querySelector('.popup__input_type_url');
 
-const validationSettings = {
-  formSelector: '.popup__form',
-  inputSelector: '.popup__input',
-  submitButtonSelector: '.popup__button',
-  inactiveButtonClass: 'popup__button_disabled',
-  inputErrorClass: 'popup__input_type_error',
-  errorClass: 'popup__input-error_active'
-}
-
-const showInputError = (formElement, inputElement, errorMessage, settings) => {
-  const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.add(settings.inputErrorClass)
-  errorElement.textContent = errorMessage
-  errorElement.classList.add(settings.errorClass);
-}
-
-const hideInputError = (formElement, inputElement, settings) => {
-  const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.remove(settings.inputErrorClass);
-  errorElement.classList.remove(settings.errorClass);
-  errorElement.textContent = '';
-};
-
-const checkInputValidity = (formElement, inputElement, settings) => {
-  if (!inputElement.validity.valid) {
-    showInputError(formElement, inputElement, inputElement.validationMessage, settings);
-  } else {
-    hideInputError(formElement, inputElement, settings);
-  }
-};
-
-const setEventListeners = (formElement, settings) => {
-  const inputList = Array.from(formElement.querySelectorAll(settings.inputSelector));
-  inputList.forEach((inputElement) => {
-    inputElement.addEventListener('input', function () {
-      this.classList.add('touched');
-      checkInputValidity(formElement, inputElement);
-    });
-  });
-};
-
-function enableValidation (settings) {
-  const formList = Array.from(document.querySelectorAll(settings.formSelector))
-
-  formList.forEach((formElement) =>  {
-    formElement.addEventListener('submit', (evt) => {
-      evt.preventDefault();
-    });
-    setEventListeners(formElement, settings)
-  })
-}
-
 enableValidation(validationSettings);
 
 profilePopup.classList.add('popup_is-animated');
@@ -137,14 +88,6 @@ cardPopup.classList.add('popup_is-animated');
 imagePopup.classList.add('popup_is-animated');
 
 document.addEventListener('click', (e) => console.log(e.target))
-
-
-// Измнение состояния кнопки лайка
-function likeToggle(event) {
-  if (event.target.classList.contains('card__like-button')) {
-    event.target.classList.toggle('card__like-button_is-active')
-  }
-}
 
 placesList.addEventListener('click', likeToggle);
 
@@ -178,36 +121,14 @@ function handleCardFormSubmit(evt) {
 
 cardFormElement.addEventListener('submit', handleCardFormSubmit);
 
-function openModal(popup) {
-  popup.classList.add('popup_is-opened');
-  popup.addEventListener('click', closeModalOnOverlayClick)
-  document.addEventListener('keydown', closeModalByEsc)
-}
-
-function closeModalOnOverlayClick(evt) {
-  if (evt.target.classList.contains('popup')) {
-    closeModal(evt.currentTarget)
-  }
-}
-
-function closeModalByEsc(evt) {
-  if (evt.key === 'Escape') {
-    console.log('Вы нажали эскейп!')
-    const openedPopup = document.querySelector('.popup_is-opened');
-    if (openedPopup) closeModal(openedPopup); }
-}
-
-function closeModal(popup) {
-    popup.classList.remove('popup_is-opened');
-
-}
-
+// Функция, отвечающая за подготовку модуля профиля к открытию.
+// Включает изначальное скрытие ошибок с валидацией и ввод прошлого имени и рода занятия
 function fillProfileForm() {
   nameInput.value = profileName.textContent;
   jobInput.value = profileStatus.textContent;
   const inputElements = Array.from(profileForm.querySelectorAll('.popup__input'));
   inputElements.forEach(inputElement => {
-      hideInputError(profileForm, inputElement);
+      hideInputError(profileForm, inputElement, validationSettings);
   });
   setSubmitButtonState(submitButtonProfile, true)
   openModal(profilePopup);
@@ -242,38 +163,6 @@ imageCloseButton.addEventListener('click', function () {
   closeModal(imagePopup);
 });
 
-// Функция создания карточки
-
-function createCard(cardData) {
-  const cardTemplate = document.querySelector('#card-template').content;
-  const cardElement = cardTemplate.cloneNode(true).firstElementChild;
-  
-  const cardImage = cardElement.querySelector('.card__image');
-  const cardTitle = cardElement.querySelector('.card__title');
-
-  cardImage.src = cardData.link;
-  cardImage.alt = cardData.name;
-  cardTitle.textContent = cardData.name;
-
-  cardImage.addEventListener('click', function () {
-    imageImage.src = cardData.link;
-    imageImage.alt = cardData.name;
-    imageDescription.textContent = cardData.name;
-    openModal(imagePopup);
-  })
-
-
-  return cardElement;
-}
-
-// Функция удаления карточки
-function deleteCard(event) {
-  if (event.target.classList.contains('card__delete-button')) {
-    const cardItem = event.target.closest('.places__item.card');
-    cardItem.remove();
-  }
-}
-
 placesList.addEventListener('click', deleteCard);
 
 // Вывести карточки на страницу
@@ -281,8 +170,7 @@ initialCards.forEach(function (item) {
   placesList.append(createCard(item));
 });
 
-
-// Функция, определяющая состояние кнопки сабмита должна быть после add...
+// Функция, определяющая состояние кнопки сабмита
 function setSubmitButtonState(buttonElement, isFormValid) {
   if (isFormValid === true) {
     buttonElement.removeAttribute('disabled');
@@ -293,7 +181,6 @@ function setSubmitButtonState(buttonElement, isFormValid) {
   }
 }
 
-// Пример реализации, чтобы не была доступна кнопка отправить при пустении одного из полей формы
 profileForm.addEventListener('input', function (evt) {
   const isValid = name.value.length > 1 && description.value.length > 1
   setSubmitButtonState(submitButtonProfile, isValid)
