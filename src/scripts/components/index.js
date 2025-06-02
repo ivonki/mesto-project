@@ -2,6 +2,8 @@ import { hideInputError, enableValidation, validationSettings } from './validate
 import { createCard, deleteCard, likeToggle } from './card.js'
 import { openModal, closeModal } from './modal.js'
 import { initialCards } from '../cards.js';
+import { getUserData, updateUserData, getInitialCards } from './api.js'
+
 
 import addIcon from '../../images/add-icon.svg';
 import avatar from '../../images/avatar.jpg';
@@ -91,16 +93,6 @@ document.addEventListener('click', (e) => console.log(e.target))
 
 placesList.addEventListener('click', likeToggle);
 
-// Изменение поведения кнопки отправить в форме профиля
-function handleProfileFormSubmit(evt) {
-    evt.preventDefault();
-
-    profileName.textContent = nameInput.value;
-    profileStatus.textContent = jobInput.value;
-
-    closeModal(profilePopup);
-}
-
 profileFormElement.addEventListener('submit', handleProfileFormSubmit);
 
 // Изменение поведения кнопки отправить в форме карточки места
@@ -121,6 +113,16 @@ function handleCardFormSubmit(evt) {
 
 cardFormElement.addEventListener('submit', handleCardFormSubmit);
 
+function getProfileData(userData) {
+  profileName.textContent = userData.name;
+  profileStatus.textContent = userData.about;
+
+  const avatarElement = document.querySelector('.profile__image');
+  if (avatarElement && userData.avatar) {
+    avatarElement.style.backgroundImage = `url('${userData.avatar}')`;
+  }
+}
+
 // Функция, отвечающая за подготовку модуля профиля к открытию.
 // Включает изначальное скрытие ошибок с валидацией и ввод прошлого имени и рода занятия
 function fillProfileForm() {
@@ -133,6 +135,34 @@ function fillProfileForm() {
   setSubmitButtonState(submitButtonProfile, true)
   openModal(profilePopup);
 }
+
+// Изменение поведения кнопки отправить в форме профиля
+function handleProfileFormSubmit(evt) {
+  evt.preventDefault();
+
+  const newName = nameInput.value;
+  const newAbout = jobInput.value;
+
+  updateUserData(newName, newAbout) // сделали запрос на сервер, где изменили данные. Потом из данных сервера обновили сайт.
+    .then(updatedData => {
+      getProfileData(updatedData);
+      closeModal(profilePopup);
+    })
+    .catch(err => {
+      console.error('Ошибка обновления профиля:', err);
+    });
+
+  closeModal(profilePopup);
+}
+
+getUserData()
+  .then(userData => {
+    getProfileData(userData);
+    console.log(userData)
+  })
+  .catch(err => {
+    console.error('Ошибка загрузки данных:', err);
+  });
 
 function clearCardCreateForm() {
   cardForm.reset()
@@ -165,10 +195,16 @@ imageCloseButton.addEventListener('click', function () {
 
 placesList.addEventListener('click', deleteCard);
 
-// Вывести карточки на страницу
-initialCards.forEach(function (item) {
-  placesList.append(createCard(item));
-});
+getInitialCards()
+  .then(cards => {
+    return cards
+  })
+  .then(cards => {
+    cards.forEach(function (item) {
+      placesList.append(createCard(item));
+    });
+  })
+
 
 // Функция, определяющая состояние кнопки сабмита
 function setSubmitButtonState(buttonElement, isFormValid) {

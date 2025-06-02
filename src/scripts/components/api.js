@@ -1,0 +1,41 @@
+const config = {
+    baseUrl: 'https://mesto.nomoreparties.co/v1/apf-cohort-202',
+    headers: {
+        authorization: 'fc5f532c-0391-4c7c-87f1-e53315000f78',
+        'Content-Type': 'application/json'
+      }
+}
+
+const getUserData = () => {
+  return fetch(`${config.baseUrl}/users/me`, {
+    headers: config.headers
+  })
+  .then(res => {
+    if (res.ok) return res.json();
+    return Promise.reject(`Ошибка: ${res.status}`);
+  });
+}
+  
+const updateUserData = (name, about) => {
+  return fetch(`${config.baseUrl}/users/me`, {
+    method: 'PATCH',
+    headers: config.headers,
+    body: JSON.stringify({ name, about })
+  })
+  .then(res => {
+    if (res.ok) return res.json();
+    return Promise.reject(`Ошибка: ${res.status}`);
+  });
+}
+
+const getInitialCards = () => {
+    return fetch(`${config.baseUrl}/cards`, {
+      headers: config.headers
+    })
+    .then(res => {
+      if (res.ok) return res.json();
+      return Promise.reject(`Ошибка: ${res.status}`)
+    });
+  } 
+
+export { getUserData, updateUserData, getInitialCards }
