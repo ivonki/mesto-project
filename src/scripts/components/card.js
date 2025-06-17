@@ -1,3 +1,5 @@
+import { openModal } from './modal.js'
+
 // Функция создания карточки
 function createCard(cardData) {
   const cardTemplate = document.querySelector('#card-template').content;
@@ -6,6 +8,10 @@ function createCard(cardData) {
   const cardImage = cardElement.querySelector('.card__image');
   const cardTitle = cardElement.querySelector('.card__title');
   
+  const imagePopup = document.querySelector('.popup_type_image');
+  const imageImage = imagePopup.querySelector('.popup__image');
+  const imageDescription = imagePopup.querySelector('.popup__caption');
+
   cardImage.src = cardData.link;
   cardImage.alt = cardData.name;
   cardTitle.textContent = cardData.name;

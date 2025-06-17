@@ -33,9 +33,23 @@ const getInitialCards = () => {
       headers: config.headers
     })
     .then(res => {
-      if (res.ok) return res.json();
+      if (res.ok) {
+        return res.json()
+    }
       return Promise.reject(`Ошибка: ${res.status}`)
-    });
-  } 
+  });
+} 
 
-export { getUserData, updateUserData, getInitialCards }
+const addNewCard = (name, link) => {
+    return fetch(`${config.baseUrl}/cards`, {
+        method: 'POST',
+        headers: config.headers,
+        body: JSON.stringify({ name, link })
+    })
+    .then(res => {
+        if (res.ok) return res.json();
+        return Promise.reject(`Ошибка: ${res.status}`)
+    })
+}
+
+export { getUserData, updateUserData, getInitialCards, addNewCard }

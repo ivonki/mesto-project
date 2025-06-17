@@ -1,8 +1,7 @@
 import { hideInputError, enableValidation, validationSettings } from './validate.js'
 import { createCard, deleteCard, likeToggle } from './card.js'
 import { openModal, closeModal } from './modal.js'
-import { initialCards } from '../cards.js';
-import { getUserData, updateUserData, getInitialCards } from './api.js'
+import { getUserData, updateUserData, getInitialCards, addNewCard } from './api.js'
 
 
 import addIcon from '../../images/add-icon.svg';
@@ -60,9 +59,6 @@ const link = cardForm.elements.link
 const submitButtonProfile = profileForm.querySelector('.popup__button');
 const submitButtonCard = cardForm.querySelector('.popup__button');
 
-const imageImage = imagePopup.querySelector('.popup__image');
-const imageDescription = imagePopup.querySelector('.popup__caption');
-
 const profileEditOpenButton = content.querySelector('.profile__edit-button');
 const profileEditCloseButton = profilePopup.querySelector('.popup__close');
 
@@ -83,19 +79,31 @@ const jobInput = profileFormElement.querySelector('.popup__input_type_descriptio
 const descriptionInput = cardFormElement.querySelector('.popup__input_type_card-name');
 const linkInput = cardFormElement.querySelector('.popup__input_type_url');
 
+
+
 enableValidation(validationSettings);
 
 profilePopup.classList.add('popup_is-animated');
 cardPopup.classList.add('popup_is-animated');
 imagePopup.classList.add('popup_is-animated');
 
-document.addEventListener('click', (e) => console.log(e.target))
+// document.addEventListener('click', (e) => console.log(e.target))
 
 placesList.addEventListener('click', likeToggle);
 
 profileFormElement.addEventListener('submit', handleProfileFormSubmit);
 
-// Изменение поведения кнопки отправить в форме карточки места
+// fetch('https://mesto.nomoreparties.co/v1/apf-cohort-202/cards', {
+//       headers: {authorization: 'fc5f532c-0391-4c7c-87f1-e53315000f78',
+//         'Content-Type': 'application/json'}
+//     })
+//   .then(res => {
+//     res.json();
+//   })
+//   .then(res => {
+//     console.log(res);
+//   })
+
 function handleCardFormSubmit(evt) {
   evt.preventDefault();
 
@@ -106,7 +114,24 @@ function handleCardFormSubmit(evt) {
   { "name": cardDescription,
     "link": cardImage}
 
-  placesList.prepend(createCard(cardData));
+  addNewCard(cardData.name, cardData.link)
+    .then(newCard => {
+      console.log('Ответ сервера:', newCard);
+
+      const cardElement = createCard({
+        name: newCard.name,
+        link: newCard.link
+      });
+
+      placesList.prepend(cardElement);
+
+      evt.target.reset();
+      closeModal(cardPopup);
+    })
+    .catch(err => {
+      console.error('Ошибка при добавлении карточки:', err);
+    })
+
 
   closeModal(cardPopup);
 }
@@ -195,16 +220,19 @@ imageCloseButton.addEventListener('click', function () {
 
 placesList.addEventListener('click', deleteCard);
 
+// Создаем карточки сразу с лайками с сервера
 getInitialCards()
   .then(cards => {
-    return cards
-  })
-  .then(cards => {
-    cards.forEach(function (item) {
-      placesList.append(createCard(item));
+    cards.forEach(item => {
+      const cardElement = createCard(item);
+      const counter = cardElement.querySelector('.card__like-counter');
+      counter.textContent = item.likes.length;
+      placesList.append(cardElement);
     });
   })
-
+  .catch(error => {
+    console.error('Ошибка при загрузке карточек:', error);
+  });
 
 // Функция, определяющая состояние кнопки сабмита
 function setSubmitButtonState(buttonElement, isFormValid) {
