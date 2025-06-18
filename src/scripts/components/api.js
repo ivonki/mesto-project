@@ -1,3 +1,5 @@
+let currentUserId;
+
 const config = {
     baseUrl: 'https://mesto.nomoreparties.co/v1/apf-cohort-202',
     headers: {
@@ -52,4 +54,41 @@ const addNewCard = (name, link) => {
     })
 }
 
-export { getUserData, updateUserData, getInitialCards, addNewCard }
+const deleteCardFromBase = (cardId) => {
+  return fetch(`${config.baseUrl}/cards/${cardId}`, {
+    method: 'DELETE',
+    headers: config.headers
+  })
+  .then(res => {
+    if (!res.ok) {
+      return res.json().then(err => Promise.reject(err));
+    }
+    return res.json();
+  });
+}
+
+const addLike = (cardId) => {
+  return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
+    method: 'PUT',
+    headers: config.headers
+  })
+  .then(res => {
+      if (res.ok) return res.json();
+      return Promise.reject(`Ошибка: ${res.status}`)
+  })
+}
+
+const removeLike = (cardId) => {
+      return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
+        method: 'DELETE',
+        headers: config.headers
+      })
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(err => Promise.reject(err));
+        }
+        return res.json();
+      });
+    };
+
+export { getUserData, updateUserData, getInitialCards, addNewCard, deleteCardFromBase, addLike, removeLike  }

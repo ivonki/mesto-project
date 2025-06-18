@@ -3,7 +3,6 @@ import { createCard, deleteCard, likeToggle } from './card.js'
 import { openModal, closeModal } from './modal.js'
 import { getUserData, updateUserData, getInitialCards, addNewCard } from './api.js'
 
-
 import addIcon from '../../images/add-icon.svg';
 import avatar from '../../images/avatar.jpg';
 import cardOne from '../../images/card_1.jpg';
@@ -79,7 +78,7 @@ const jobInput = profileFormElement.querySelector('.popup__input_type_descriptio
 const descriptionInput = cardFormElement.querySelector('.popup__input_type_card-name');
 const linkInput = cardFormElement.querySelector('.popup__input_type_url');
 
-
+let currentUserId;
 
 enableValidation(validationSettings);
 
@@ -93,17 +92,6 @@ placesList.addEventListener('click', likeToggle);
 
 profileFormElement.addEventListener('submit', handleProfileFormSubmit);
 
-// fetch('https://mesto.nomoreparties.co/v1/apf-cohort-202/cards', {
-//       headers: {authorization: 'fc5f532c-0391-4c7c-87f1-e53315000f78',
-//         'Content-Type': 'application/json'}
-//     })
-//   .then(res => {
-//     res.json();
-//   })
-//   .then(res => {
-//     console.log(res);
-//   })
-
 function handleCardFormSubmit(evt) {
   evt.preventDefault();
 
@@ -116,7 +104,6 @@ function handleCardFormSubmit(evt) {
 
   addNewCard(cardData.name, cardData.link)
     .then(newCard => {
-      console.log('Ответ сервера:', newCard);
 
       const cardElement = createCard({
         name: newCard.name,
@@ -183,7 +170,7 @@ function handleProfileFormSubmit(evt) {
 getUserData()
   .then(userData => {
     getProfileData(userData);
-    console.log(userData)
+    currentUserId = userData._id
   })
   .catch(err => {
     console.error('Ошибка загрузки данных:', err);
@@ -218,16 +205,22 @@ imageCloseButton.addEventListener('click', function () {
   closeModal(imagePopup);
 });
 
-placesList.addEventListener('click', deleteCard);
+placesList.addEventListener('click', deleteCard)
 
 // Создаем карточки сразу с лайками с сервера
 getInitialCards()
   .then(cards => {
     cards.forEach(item => {
       const cardElement = createCard(item);
+      const deleteButton = cardElement.querySelector('.card__delete-button');
       const counter = cardElement.querySelector('.card__like-counter');
+
       counter.textContent = item.likes.length;
       placesList.append(cardElement);
+
+      if (currentUserId != item.owner._id) {
+        deleteButton.style.display = 'none';
+      }
     });
   })
   .catch(error => {
