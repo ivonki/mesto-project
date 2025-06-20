@@ -1,7 +1,7 @@
 import { hideInputError, enableValidation, validationSettings } from './validate.js'
 import { createCard, deleteCard, likeToggle } from './card.js'
 import { openModal, closeModal } from './modal.js'
-import { getUserData, updateUserData, getInitialCards, addNewCard } from './api.js'
+import { getUserData, updateUserData, getInitialCards, addNewCard, avatarChange } from './api.js'
 
 import addIcon from '../../images/add-icon.svg';
 import avatar from '../../images/avatar.jpg';
@@ -45,18 +45,26 @@ const placesList = content.querySelector('.places__list');
 const profilePopup = document.querySelector('.popup_type_edit');
 const cardPopup = document.querySelector('.popup_type_new-card');
 const imagePopup = document.querySelector('.popup_type_image');
+const avatarPopup = document.querySelector('.popup_type_avatar-change');
 
 const profileForm = document.forms['edit-profile']
 const cardForm = document.forms['new-place']
+const avatarForm = document.forms['new-avatar']
+
+const avatarInput = avatarForm.elements.link
 
 const name = profileForm.elements.name
 const description = profileForm.elements.description
 
 const placeName = cardForm.elements['place-name']
-const link = cardForm.elements.link
+const cardLink = cardForm.elements.link
+
+const avatarElement = document.querySelector('.profile__image');
+const avatarLink = avatarForm.elements.link
 
 const submitButtonProfile = profileForm.querySelector('.popup__button');
 const submitButtonCard = cardForm.querySelector('.popup__button');
+const submitButtonAvatar = avatarForm.querySelector('.popup__button');
 
 const profileEditOpenButton = content.querySelector('.profile__edit-button');
 const profileEditCloseButton = profilePopup.querySelector('.popup__close');
@@ -65,6 +73,8 @@ const cardCreateOpenButton = content.querySelector('.profile__add-button');
 const cardCreateCloseButton = cardPopup.querySelector('.popup__close');
 
 const imageCloseButton = imagePopup.querySelector('.popup__close');
+
+const avatarPopupCloseButton = avatarPopup.querySelector('.popup__close')
 
 const profileName = content.querySelector('.profile__title');
 const profileStatus = content.querySelector('.profile__description');
@@ -85,8 +95,43 @@ enableValidation(validationSettings);
 profilePopup.classList.add('popup_is-animated');
 cardPopup.classList.add('popup_is-animated');
 imagePopup.classList.add('popup_is-animated');
+avatarPopup.classList.add('popup_is-animated');
 
 // document.addEventListener('click', (e) => console.log(e.target))
+
+function setButtonTitle(button, isLoading) {
+  if (isLoading) {
+    button.textContent = 'Сохранение...'
+  } else {
+    button.textContent = 'Сохранить'
+  }
+}
+
+submitButtonAvatar.addEventListener('click', function (evt) {
+  evt.preventDefault();
+  const newAvatarUrl = avatarInput.value;
+  const currentButton = evt.target.closest('.popup__button')
+
+  setButtonTitle(currentButton, true)
+
+  avatarChange(newAvatarUrl)
+    .then(() => {
+      return getUserData();
+    })
+    .then(userData => {
+      avatarElement.style.backgroundImage = `url(${userData.avatar})`
+      closeModal(avatarPopup)
+    })
+    .catch(err => {
+      console.error('Ошибка при обновлении аватара:', err);
+    })
+    .finally(() => setButtonTitle(currentButton, false));
+});
+
+avatarElement.addEventListener('click', function () {
+  openModal(avatarPopup);
+  setSubmitButtonState(submitButtonAvatar, false);
+})
 
 placesList.addEventListener('click', likeToggle);
 
@@ -97,6 +142,10 @@ function handleCardFormSubmit(evt) {
 
   const cardImage = linkInput.value;
   const cardDescription = descriptionInput.value;
+
+  const currentButton = evt.target.querySelector('.popup__button')
+
+  setButtonTitle(currentButton, true)
 
   const cardData = 
   { "name": cardDescription,
@@ -118,9 +167,7 @@ function handleCardFormSubmit(evt) {
     .catch(err => {
       console.error('Ошибка при добавлении карточки:', err);
     })
-
-
-  closeModal(cardPopup);
+    .finally(() => setButtonTitle(currentButton, false))
 }
 
 cardFormElement.addEventListener('submit', handleCardFormSubmit);
@@ -129,7 +176,6 @@ function getProfileData(userData) {
   profileName.textContent = userData.name;
   profileStatus.textContent = userData.about;
 
-  const avatarElement = document.querySelector('.profile__image');
   if (avatarElement && userData.avatar) {
     avatarElement.style.backgroundImage = `url('${userData.avatar}')`;
   }
@@ -155,6 +201,10 @@ function handleProfileFormSubmit(evt) {
   const newName = nameInput.value;
   const newAbout = jobInput.value;
 
+  const currentButton = evt.target.querySelector('.popup__button')
+
+  setButtonTitle(currentButton, true)
+
   updateUserData(newName, newAbout) // сделали запрос на сервер, где изменили данные. Потом из данных сервера обновили сайт.
     .then(updatedData => {
       getProfileData(updatedData);
@@ -162,9 +212,10 @@ function handleProfileFormSubmit(evt) {
     })
     .catch(err => {
       console.error('Ошибка обновления профиля:', err);
+    })
+    .finally(() => {
+      setButtonTitle(currentButton, false)
     });
-
-  closeModal(profilePopup);
 }
 
 getUserData()
@@ -205,23 +256,38 @@ imageCloseButton.addEventListener('click', function () {
   closeModal(imagePopup);
 });
 
+avatarPopupCloseButton.addEventListener('click', function () {
+  closeModal(avatarPopup);
+});
+
 placesList.addEventListener('click', deleteCard)
+
+function loadCards(cards) {
+  cards.forEach(item => {
+    // const content = document.querySelector('.content');
+    // const placesList = content.querySelector('.places__list');
+    const cardElement = createCard(item);
+    const deleteButton = cardElement.querySelector('.card__delete-button');
+    const likeButton = cardElement.querySelector('.card__like-button');
+    const counter = cardElement.querySelector('.card__like-counter');
+
+    counter.textContent = item.likes.length;
+    placesList.append(cardElement);
+
+    if (currentUserId != item.owner._id) {
+      deleteButton.style.display = 'none';
+    }
+
+    if (item.likes.some(like => like._id === currentUserId)) {
+      likeButton.classList.add('card__like-button_is-active');
+    }
+  });
+}
 
 // Создаем карточки сразу с лайками с сервера
 getInitialCards()
   .then(cards => {
-    cards.forEach(item => {
-      const cardElement = createCard(item);
-      const deleteButton = cardElement.querySelector('.card__delete-button');
-      const counter = cardElement.querySelector('.card__like-counter');
-
-      counter.textContent = item.likes.length;
-      placesList.append(cardElement);
-
-      if (currentUserId != item.owner._id) {
-        deleteButton.style.display = 'none';
-      }
-    });
+    loadCards(cards)
   })
   .catch(error => {
     console.error('Ошибка при загрузке карточек:', error);
@@ -244,6 +310,11 @@ profileForm.addEventListener('input', function (evt) {
 })
 
 cardForm.addEventListener('input', function (evt) {
-  const isValid = link.value.length > 1 && placeName.value.length > 1
+  const isValid = cardLink.value.length > 1 && placeName.value.length > 1
   setSubmitButtonState(submitButtonCard, isValid)
+})
+
+avatarForm.addEventListener('input', function (evt) {
+  const isValid = avatarLink.value.length > 1
+  setSubmitButtonState(submitButtonAvatar, isValid)
 })

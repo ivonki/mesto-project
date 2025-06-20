@@ -91,4 +91,18 @@ const removeLike = (cardId) => {
       });
     };
 
-export { getUserData, updateUserData, getInitialCards, addNewCard, deleteCardFromBase, addLike, removeLike  }
+const avatarChange = (avatarLink) => {
+  return fetch(`${config.baseUrl}/users/me/avatar`, {
+    method: 'PATCH',
+    headers: config.headers,
+    body: JSON.stringify({ avatar: avatarLink })
+  })
+  .then(res => {
+    if (!res.ok) {
+      return res.json().then(err => Promise.reject(err));
+    }
+    return res.json();
+  });
+};
+
+export { getUserData, updateUserData, getInitialCards, addNewCard, deleteCardFromBase, addLike, removeLike, avatarChange  }

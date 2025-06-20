@@ -47,18 +47,40 @@ function deleteCard(event) {
 // Измнение состояния кнопки лайка
 function likeToggle(event) {
   if (event.target.classList.contains('card__like-button')) {
-    event.target.classList.toggle('card__like-button_is-active');
-    const cardItem = event.target.closest('.places__item.card');
+    const likeButton = event.target;
+    const cardItem = likeButton.closest('.places__item.card');
     const cardId = cardItem.cardId;
     const counter = cardItem.querySelector('.card__like-counter');
+    let currentLikes = parseInt(counter.textContent, 10) || 0;
+    const isLiked = likeButton.classList.contains('card__like-button_is-active');
 
-    addLike(cardId)
-      .then(() => {
-      })
-      .catch(error => {
-        console.error(error);
-        event.target.classList.toggle('card__like-button_is-active');
-      });
+    likeButton.classList.toggle('card__like-button_is-active');
+
+    if (isLiked) {
+      removeLike(cardId)
+        .then(() => {
+          currentLikes--;
+          counter.textContent = currentLikes;
+        })
+        .catch(error => {
+          console.error(error);
+          likeButton.classList.toggle('card__like-button_is-active');
+          currentLikes++;
+          counter.textContent = currentLikes;
+        });
+    } else {
+      addLike(cardId)
+        .then(() => {
+          currentLikes++;
+          counter.textContent = currentLikes;
+        })
+        .catch(error => {
+          console.error(error);
+          likeButton.classList.toggle('card__like-button_is-active');
+          currentLikes--;
+          counter.textContent = currentLikes;
+        });
+    }
   }
 }
 

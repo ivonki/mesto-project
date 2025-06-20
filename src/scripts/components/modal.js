@@ -12,7 +12,6 @@ function closeModalOnOverlayClick(evt) {
   
 function closeModalByEsc(evt) {
   if (evt.key === 'Escape') {
-    console.log('Вы нажали эскейп!')
     const openedPopup = document.querySelector('.popup_is-opened');
     if (openedPopup) closeModal(openedPopup); }
 }
